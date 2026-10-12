@@ -4,7 +4,7 @@
 
 The difference between OLTP and OLAP is visible in every aspect. In the context of read patterns, OLTP uses reads to give a user information about their profile, a product, or something they are interested in, depending on the application's purpose, and most often those are very light, cheap, and simple queries. On the other hand, OLAP uses read patterns primarily to execute large-scale analytical queries, for example, to calculate all sales of one product in one month.
 
-When it comes to writing in OLTP, all data which a user has access to is written into the database at a given moment, and just like with reads, these are small, frequent writes. Conversely, OLAP is a read-only copy of the OLTP database, so it doesn't have writes at all from the user perspective, but data in OLAP is usually written in batches through ETL/ELT processes.
+When it comes to writing in OLTP, all data which a user has access to is written into the database at a given moment, and just like with reads, these are small, frequent writes. Conversely, OLAP is like a read-only copy of the OLTP database, the data is derived from priamry database and logs into this one, so it doesn't have writes at all from the user perspective, but data in OLAP is usually written in batches through ETL/ELT processes.
 
 Users of OLTP are mainly end-users of our product or application, while data analysts and BI engineers are the ones who work on OLAP systems.
 
@@ -22,9 +22,11 @@ Furthermore, we could find the same data in different forms, which is totally fi
 
 ## 3. Data Warehouse and Data Lake 
 
-The main difference lies in who uses it and for what purpose. While the data warehouse is used by data engineers and BI engineers, and the focus is on past events, on the other hand, a data lake is used in data science and machine learning, and their goal is to predict behaviors from collected data. There is a difference in the type of storage as well: while a warehouse is a relational DB, a data lake doesn't have any format or schema, but rather saves raw data or even whole files, collecting all data that could be useful one day.
+The main difference lies in who uses it and for what purpose. While the data warehouse is used by data engineers and BI engineers, and the focus is on past events, on the other hand, a data lake is used in data science and machine learning, and their goal is to predict behaviors from collected data. There is a difference in the type of storage as well: while a warehouse is a relational DB, A data lake stores raw files (CSV, JSON, Parquet, Avro, images) in object storage without enforcing a schema on write; structure is applied only when the data is read (schema-on-read), collecting all data that could be useful one day.
 
-The data size is much bigger, but it's cheaper because it uses object storage such as AWS S3, Azure Data Lake Storage, or Google Cloud Storage. But the data lake has a few serious problems, like a lack of ACID transactions, input control, updating and deleting rows, and slow performance. All of that is a reason why lakehouses exist: they fill the gap between warehouses and data lakes, and they are fixing all these problems as well.
+The data size is much bigger, but it's cheaper because it uses object storage such as AWS S3, Azure Data Lake Storage, or Google Cloud Storage. But the data lake has a few serious problems, like a lack of ACID transactions, input control, updating and deleting rows, and slow performance. All of that is a reason why lakehouses exist
+
+A lakehouse adds an open table format (Apache Iceberg, Delta Lake, Apache Hudi) on top of the files in object storage, which gives the lake warehouse-like features: ACID transactions, schema enforcement, row-level updates and deletes, and time travel.
 
 ## 4. ETL, ELT, and Reverse ETL 
 
@@ -34,7 +36,7 @@ ELT/ETL could have one extra station in its process, and that is loading a data 
 
 ## 5. System of Record and Derived Data 
 
-A System of Record keeps the official version of data; every piece of information in our system has a written official version. Primarily, that is a database where data is written first. If another system has a different version of some piece of information, the System of Record will be the reliable source of truth, such as a main database or a payment gateway log.
+A System of Record keeps the official version of data; every piece of information in our system has a written official version. Primarily, that is a database where data is written first. If another system has a different version of some piece of information, the System of Record is the reliable source of truth, such as the main database, or the payment provider’s transaction records, which are authoritative for whether a charge happened.
 
 On the other hand, derived data is data which is derived from another system or even a few of them. So actually, that data is redundant, but that is the point, because we can combine data in a way that suits us. Caches and database indexes are examples of derived data. In case of a failure, losing this data is irrelevant for us because we can always make a new one, while the System of Record is the main source of truth.
 
@@ -42,9 +44,9 @@ On the other hand, derived data is data which is derived from another system or 
 
 The biggest problem with self-hosting can be the lack of consistency in terms of traffic. When a system has huge oscillations in traffic, like an OLAP system, it is idle most of the time, but it requires high performance when it needs to execute high-scale analytical operations. Because of that, we have to pay the whole time for high-performance resources, even though they are only used for a small fraction of the time.
 
-On the other hand, cloud hosting offers a solution: it scales the system very easily so we are not wasting resources when we don't need them. In this sense, if we know that we will have constant traffic, self-hosting could be a better option, but if we are not sure, the cloud is better and, most importantly, cheaper. Of course, the cloud is not ideal in terms of control. In a self-hosted setup, we have much more freedom: we get our own OS with allocated resources and we handle deployments ourselves. In the cloud, through SaaS, we can deploy our app very easily and the cloud provider will manage everything related to infrastructure, though you can get more control with IaaS.
+On the other hand, cloud hosting offers a solution: it scales the system very easily so we are not wasting resources when we don't need them. In this sense, if we know that we will have constant traffic, self-hosting could be a better option, but if we are not sure, the cloud is better. Of course, the cloud is not ideal in terms of control. In a self-hosted setup, we have much more freedom: we get our own OS with allocated resources and we handle deployments ourselves. In the cloud, through SaaS, we can deploy our app very easily and the cloud provider will manage everything related to infrastructure, though you can get more control with IaaS.
 
-In a self-hosted environment, our team is responsible for monitoring, logging, and CI/CD, while cloud providers handle this themselves. However, there is a catch: in case of an error or performance degradation, it is much harder to find the root cause because we don't have access to the hardware and we are very limited with information about the underlying infrastructure.
+In a self-hosted environment, our team is responsible for monitoring, logging, and CI/CD, cloud providers offer managed monitoring, logging, and CI/CD services, but the team still configures and uses them. However, there is a catch: in case of an error or performance degradation, it is much harder to find the root cause because we don't have access to the hardware and we are very limited with information about the underlying infrastructure.
 
 The main problem with the cloud is that if we end up in a situation where we need a service they currently don't offer, we can only politely ask them and hope they add it soon. Furthermore, if they change something in a way we don't like, we are at their mercy - we can't keep using an older version. Even worse, if we want to move to another provider, it is a long and painful process, and we can also run into issues due to political events or compliance regulations in our country.
 
@@ -74,9 +76,9 @@ Instead, capacity planning has shifted to cost management, where we decide if ad
 
 ## 9. Distributed Systems 
 
-There are many reasons to choose distributed systems, and one of those is high availability and failure tolerance. We could have redundancy of our instances, so if one goes down, we could just move to another one. One of the biggest advantages is scalability for sure; it is very easy to scale up your system on high traffic and just scale it down when you don't need it. Latency plays a key role in big services; you can have instances across continents so every user can go to the nearest instance.
+There are many reasons to choose distributed systems, and one of those is high availability and failure tolerance. We could have redundancy of our instances, so if one goes down, we could just move to another one. Other one is scalability, the ability of a system to keep its performance acceptable as load grows (more data, more requests, more users), typically by spreading the work across more machines instead of one.Latency plays a key role in big services; you can have instances across continents so every user can go to the nearest instance.
 
-Of course, distributed systems have bad sides as well. They are very dependent on the network, and in case of slow performance or some other problem, it's much harder to find a problem than in single-node systems. We can also face data consistency problems. One of the solutions is distributed transactions, but it's the opposite of the logic behind microservices.
+Of course, distributed systems have bad sides as well. They are very dependent on the network, and in case of slow performance or some other problem, it's much harder to find a problem than in single-node systems. We can also face data consistency problems. One of the solutions is distributed transactions, but it's the opposite of the logic behind microservices. And there is more dowside like a data privacy (GDPR)
 
 ## 10. Microservices and Serverless 
 
