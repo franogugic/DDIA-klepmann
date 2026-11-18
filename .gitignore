@@ -1,1 +1,9 @@
 .DS_Store
+
+# build output and IDE files
+bin/
+obj/
+.idea/
+
+# local settings with the database password (use appsettings.example.json as a template)
+chapter_2/mini-project/appsettings.json

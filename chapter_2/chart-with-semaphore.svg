@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 420" width="720" height="420" role="img" aria-label="With semaphore (server handles 1 request at a time), 10,000 requests">
+<title>With semaphore (server handles 1 request at a time), 10,000 requests</title>
+<rect width="720" height="420" fill="#ffffff"/>
+<text x="70" y="24" font-family="sans-serif" font-size="14" font-weight="500" fill="#0b0b0b">With semaphore (server handles 1 request at a time), 10,000 requests</text>
+<rect x="70" y="40" width="10" height="10" rx="2" fill="#2a78d6"/>
+<text x="86" y="49" font-family="sans-serif" font-size="12" fill="#52514e">open-loop (left bar)</text>
+<rect x="250" y="40" width="10" height="10" rx="2" fill="#eb6834"/>
+<text x="266" y="49" font-family="sans-serif" font-size="12" fill="#52514e">closed-loop (right bar)</text>
+<line x1="70" y1="370.0" x2="700" y2="370.0" stroke="#e1e0d9" stroke-width="1"/>
+<text x="62" y="374.0" text-anchor="end" font-family="sans-serif" font-size="11" fill="#898781">1</text>
+<line x1="70" y1="296.2" x2="700" y2="296.2" stroke="#e1e0d9" stroke-width="1"/>
+<text x="62" y="300.2" text-anchor="end" font-family="sans-serif" font-size="11" fill="#898781">10</text>
+<line x1="70" y1="222.5" x2="700" y2="222.5" stroke="#e1e0d9" stroke-width="1"/>
+<text x="62" y="226.5" text-anchor="end" font-family="sans-serif" font-size="11" fill="#898781">100</text>
+<line x1="70" y1="148.8" x2="700" y2="148.8" stroke="#e1e0d9" stroke-width="1"/>
+<text x="62" y="152.8" text-anchor="end" font-family="sans-serif" font-size="11" fill="#898781">1000</text>
+<line x1="70" y1="75.0" x2="700" y2="75.0" stroke="#e1e0d9" stroke-width="1"/>
+<text x="62" y="79.0" text-anchor="end" font-family="sans-serif" font-size="11" fill="#898781">10000</text>
+<text x="14" y="222.5" transform="rotate(-90 14 222.5)" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#898781">ms (log scale)</text>
+<rect x="92.5" y="226.2" width="28" height="143.8" rx="3" fill="#2a78d6"/>
+<text x="106.5" y="222.2" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#52514e">89</text>
+<rect x="124.5" y="353.0" width="28" height="17.0" rx="3" fill="#eb6834"/>
+<text x="138.5" y="349.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#52514e">1.7</text>
+<text x="122.5" y="388.0" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#52514e">p50</text>
+<rect x="197.5" y="129.7" width="28" height="240.3" rx="3" fill="#2a78d6"/>
+<text x="211.5" y="125.7" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#52514e">1814</text>
+<rect x="229.5" y="272.5" width="28" height="97.5" rx="3" fill="#eb6834"/>
+<text x="243.5" y="268.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#52514e">21</text>
+<text x="227.5" y="388.0" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#52514e">p95</text>
+<rect x="302.5" y="114.7" width="28" height="255.3" rx="3" fill="#2a78d6"/>
+<text x="316.5" y="110.7" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#52514e">2898</text>
+<rect x="334.5" y="148.6" width="28" height="221.4" rx="3" fill="#eb6834"/>
+<text x="348.5" y="144.6" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#52514e">1006</text>
+<text x="332.5" y="388.0" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#52514e">p99</text>
+<rect x="407.5" y="105.8" width="28" height="264.2" rx="3" fill="#2a78d6"/>
+<text x="421.5" y="101.8" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#52514e">3825</text>
+<rect x="439.5" y="148.5" width="28" height="221.5" rx="3" fill="#eb6834"/>
+<text x="453.5" y="144.5" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#52514e">1007</text>
+<text x="437.5" y="388.0" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#52514e">p999</text>
+<rect x="512.5" y="103.3" width="28" height="266.7" rx="3" fill="#2a78d6"/>
+<text x="526.5" y="99.3" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#52514e">4128</text>
+<rect x="544.5" y="148.0" width="28" height="222.0" rx="3" fill="#eb6834"/>
+<text x="558.5" y="144.0" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#52514e">1024</text>
+<text x="542.5" y="388.0" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#52514e">max</text>
+<rect x="617.5" y="173.1" width="28" height="196.9" rx="3" fill="#2a78d6"/>
+<text x="631.5" y="169.1" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#52514e">468</text>
+<rect x="649.5" y="243.4" width="28" height="126.6" rx="3" fill="#eb6834"/>
+<text x="663.5" y="239.4" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#52514e">52</text>
+<text x="647.5" y="388.0" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#52514e">mean</text>
+<line x1="70" y1="370.0" x2="700" y2="370.0" stroke="#c3c2b7" stroke-width="1"/>
+</svg>
