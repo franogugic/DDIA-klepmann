@@ -73,3 +73,43 @@ Limitations: one run per configuration; the arrival schedule is not perfectly fi
 ## One-sentence takeaway
 
 A closed-loop test underestimates the tail because it does not send the requests that would wait behind a slow one, so only an open-loop test shows the true distribution of response times when the server has a queue.
+
+---
+
+# Latency Lab, part 2.B: tail latency amplification
+
+## Hypothesis
+
+If each of n parallel calls (to the same or to different backends) is slow in only 1% of cases, and a request waits for all of them (fan-out), the request is slow as soon as at least one call is slow. I expect the probability of a slow request to be **1 − 0.99ⁿ**: for n = 1, 10, 50, and 100 this is 1%, 9.56%, 39.50%, and 63.40%. (This is tail latency amplification.)
+
+## Setup
+
+- Each call is slow with probability 1%, **independently** of the others.
+- A request fans out to n = 1, 10, 50, and 100 parallel calls and waits for all of them.
+- Simulation: the Python script [`fanout_simulation.py`](mini-project/fanout_simulation.py), 10,000 requests for each n (a random number below 0.01 means the call is slow; a request is slow if at least one call is slow; random seed 42).
+- The same experiment can be built in Google Sheets: the formula `=IF(SUMPRODUCT(--(RANDARRAY(B$1)<0.01))>0,1,0)` copied into 10,000 rows, then `=AVERAGE(...)` of the column. (In a sheet with Croatian settings, use `;` between arguments and `0,01`.)
+
+## Procedure
+
+1. I derived the formula. The probability that one call is fast is 0.99, so the probability that **all** n calls are fast is 0.99ⁿ. The request is slow when not all calls are fast, so the probability is **1 − 0.99ⁿ**. (The expression 0.01ⁿ is not this: it is the probability that all calls are slow at the same time.)
+2. I calculated the probability for n = 1, 10, 50, and 100.
+3. I simulated 10,000 requests for each n and compared the share of slow requests with the formula.
+
+## Observations
+
+| n | formula 1 − 0.99ⁿ | simulation (10,000 requests) | difference |
+|---|---|---|---|
+| 1 | 1.00% | 1.04% | +0.04 |
+| 10 | 9.56% | 9.55% | −0.01 |
+| 50 | 39.50% | 39.35% | −0.15 |
+| 100 | 63.40% | 63.24% | −0.16 |
+
+## Conclusion
+
+The formula and the simulation agree in all cases. The differences are smaller than 0.2 percentage points, which is within the expected random noise for 10,000 trials (the standard error is about 0.5 percentage points). So the theory is correct: a slowness that is rare for one call becomes common when a request waits for many calls.
+
+Limitation: the calculation assumes that the calls are **independent**. If the slowness is correlated (one cause hits several calls at once, for example the same overloaded machine), the share of slow requests would be different.
+
+## One-sentence takeaway
+
+A call that is slow in only 1% of cases makes about 40% of requests slow when a request waits for 50 calls, and about 63% (almost two out of three) when it waits for 100.
