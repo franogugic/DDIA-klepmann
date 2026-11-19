@@ -54,9 +54,9 @@ I expect that a closed-loop generator (it sends the next request only after the 
 
 **Percentile charts** (logarithmic axis, values from the tables above):
 
-![With semaphore: open-loop and closed-loop](chart-with-semaphore.svg)
+![With semaphore: open-loop and closed-loop](mini-project/assets/chart-with-semaphore.svg)
 
-![Without semaphore: open-loop and closed-loop](chart-without-semaphore.svg)
+![Without semaphore: open-loop and closed-loop](mini-project/assets/chart-without-semaphore.svg)
 
 **Note on p95:** the difference in p95 on the chart without the semaphore (1002.6 ms for open-loop and 12.5 ms for closed-loop) is **random, not an effect of the generator type**. Exactly 5% of requests are slow, so p95 sits on the edge between fast and slow requests. By chance, the open-loop test had 504 slow requests (5.04%), so its p95 was slow, and the closed-loop test had 490 (4.90%), so its p95 was fast. In the next run it could be the other way round: in earlier runs of the same open-loop test, p95 was 7 ms, 11 ms, and sometimes about 1003 ms, with no change in the settings. For this reason, my conclusion about the difference between the generators is based on p99, p999, and max, not on p95.
 

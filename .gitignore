@@ -6,4 +6,4 @@ obj/
 .idea/
 
 # local settings with the database password (use appsettings.example.json as a template)
-chapter_2/mini-project/appsettings.json
+chapter_2/mini-project/latency-service/appsettings.json
