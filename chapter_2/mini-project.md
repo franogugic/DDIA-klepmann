@@ -113,3 +113,71 @@ Limitation: the calculation assumes that the calls are **independent**. If the s
 ## One-sentence takeaway
 
 A call that is slow in only 1% of cases makes about 40% of requests slow when a request waits for 50 calls, and about 63% (almost two out of three) when it waits for 100.
+
+---
+
+# Latency Lab, part 2.C: SLOs and error budget
+
+## Hypothesis
+
+I expect that the lab service meets the SLO for the typical user (p50) and the SLO for availability, but **breaks the SLO for the tail (p99)**, because 5% of requests are slow on purpose, by 1000 ms. I expect the error budget for p99 to be used up several times over.
+
+## Setup
+
+- **Measurement:** the SLOs are checked on the same experiment as in part 2.A: the open-loop generator, 10,000 requests, the service **without the semaphore**. The measurement is made on localhost, **without a network** (decision A: the SLO applies to the service, without network delay).
+- **Assumed traffic** for the budget calculation: 10 requests per second, 30 days, so 10 × 86,400 × 30 = **25,920,000 requests** per month.
+- **Measurement window** for all three SLOs: 30 days.
+
+| SLO | target | good request | monthly error budget |
+|---|---|---|---|
+| 1: p50 < 10 ms | at least 50% of requests faster than 10 ms | response in less than 10 ms | 12,960,000 slower requests |
+| 2: p99 < 800 ms | at least 99% of requests faster than 800 ms | response in less than 800 ms | 259,200 slower requests |
+| 3: availability | at least 99% of requests succeed | status 2xx or 404 | 259,200 failed requests |
+
+For availability, **a 404 is not a service error** (a missing id is a correct answer). A failure is any other status (in practice 5xx), an exception, or a timeout.
+
+For availability, the budget can also be written as time: 1% of 30 days is 7.2 hours, which is **7 hours and 12 minutes**.
+
+## Procedure
+
+1. For each SLO, I set a target, a definition of a good request, and a window.
+2. I calculated the monthly error budget from the assumed traffic: 1% of 25,920,000 is 259,200, and 50% is 12,960,000.
+3. I added a counter of failed requests to the generator (exceptions, timeouts, and statuses of 300 and above except 404). It is reset to zero before each test.
+4. I ran an open-loop test with 10,000 requests on the service without the semaphore and checked the SLOs against the measured values.
+
+I deliberately did **not** use p95 in an SLO. Exactly 5% of requests are slow, so p95 sits on the edge and jumps between fast and slow from one run to the next.
+
+## Observations
+
+Measured (open-loop, 10,000 requests, without the semaphore):
+
+| measure | value |
+|---|---|
+| p50 | 3.3 ms |
+| p99 | 1005.2 ms |
+| heavy requests (above 500 ms) | 521 (5.2%) |
+| failed requests | 0 |
+
+SLO check and budget use (monthly projection: about 5% of 25,920,000 = 1,296,000 slow requests):
+
+| SLO | result | verdict | budget used |
+|---|---|---|---|
+| 1: p50 < 10 ms | p50 = 3.3 ms | met | ~10% (1,296,000 of 12,960,000) |
+| 2: p99 < 800 ms | p99 = 1005.2 ms | **broken** | ~500% (1,296,000 of 259,200) |
+| 3: availability 99% | 0 failed out of 10,000 (100%) | met | 0% |
+
+For SLO 2, the service uses the budget five times faster than allowed, so the monthly budget would be gone in about **6 days** (30 days ÷ 5).
+
+## Conclusion
+
+The expectation was confirmed: SLO 1 and SLO 3 are met, and SLO 2 is broken. All three SLOs can be checked mechanically from the measurements: I count the good requests (faster than the threshold, or status 2xx or 404), divide by the total, and compare with the target. This also shows the lesson: p50 is green even when 5% of users wait a second, and only an SLO on the tail (p99) reveals the problem. I chose the 800 ms threshold clearly below the intended 1000 ms delay, so that the result does not depend on a few milliseconds.
+
+Limitations:
+- Measured on localhost **without a network**; in production, network delay would be added.
+- Availability was checked only for an existing id, so a **404 never happened**, and the counter never saw a 5xx in practice.
+- One run; the monthly budget is a projection from assumed traffic, not a measurement of a whole month.
+- The share of requests slower than 10 ms (SLO 1) was not counted separately; it was estimated from the heavy requests.
+
+## One-sentence takeaway
+
+The service meets the SLO for the typical user and for availability, but breaks the SLO for the tail: 5% of slow requests use the p99 error budget five times faster than allowed, so the monthly budget would be gone in about 6 days.

@@ -38,12 +38,10 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-var semaphore = new SemaphoreSlim(1, 1);
 
 
 app.MapGet("/product/{id}",async (int id, AppDbContext db) =>
 {
-    await semaphore.WaitAsync();
     try
     {
         var numb = Random.Shared.Next(1, 101);
@@ -57,7 +55,6 @@ app.MapGet("/product/{id}",async (int id, AppDbContext db) =>
     }
     finally
     {
-        semaphore.Release();
     }
 
 });

@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Net;
 
 var client = new HttpClient { Timeout = TimeSpan.FromMinutes(5) };
 var loopNumber = 10000;
@@ -14,7 +15,8 @@ async Task<double> SendOne(HttpClient client, string url)
     var timer = Stopwatch.StartNew();
     try
     {
-        await client.GetAsync(url);
+        var result = await client.GetAsync(url);
+        if((int)result.StatusCode >= 300 && (int)result.StatusCode != 404) Interlocked.Increment(ref failed);
     }
     catch
     {
@@ -24,9 +26,10 @@ async Task<double> SendOne(HttpClient client, string url)
     return timer.Elapsed.TotalMilliseconds;
 }
 
-void Results(List<double> times, string loopType, int heavyReqNumber)
+void Results(List<double> times, string loopType, int heavyReqNumber, int failedReqNumber)
 {
     Console.WriteLine($"Results for {loopType}, has {heavyReqNumber} heavy requests");
+    Console.WriteLine($"We had {failedReqNumber} failed requests");
     var average = times.Average();
     var max = times.Max();
     Console.WriteLine("p999: " + times[(int)Math.Ceiling(loopNumber * 0.999) - 1] + "ms");
@@ -49,6 +52,7 @@ Console.WriteLine("warming: " + warmingTimer.Elapsed.TotalMilliseconds);
 // open loop
 async Task OpenLoop()
 {
+    failed = 0;
     for (var i = 0; i < loopNumber; i++)
     {
         await Task.Delay(msDelay);
@@ -59,12 +63,13 @@ async Task OpenLoop()
     await Task.WhenAll(tasksOpen);
     var times = tasksOpen.Select(t => t.Result).OrderBy(x => x).ToList();
     var heavyReqNumber = times.Count(t => t > 500);
-    Results(times, "open loop", heavyReqNumber);
+    Results(times, "open loop", heavyReqNumber, failed);
 }
 await OpenLoop();
 Console.WriteLine("=====================================================");
 async Task CloseLoop()
 {
+    failed = 0;
     for (var i = 0; i < loopNumber; i++)
     {
         var time = await SendOne(client, url);
@@ -72,7 +77,7 @@ async Task CloseLoop()
     }
     var times = tasksClose.OrderBy(x => x).ToList();
     var heavyReqNumber = times.Count(t => t > 500);
-    Results(times, "close loop", heavyReqNumber);
+    Results(times, "close loop", heavyReqNumber, failed);
 }
 
 await CloseLoop();
